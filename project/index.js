@@ -29,7 +29,7 @@ var oa = new OAuth(
 	"HMAC-SHA1"
 );
 
-app.get('/', function (req, res) {
+app.get('/twitter', function (req, res) {
 	oa.getOAuthRequestToken(function(error, oauth_token, oauth_token_secret, results) {
 		if (error) {
 			console.log(error);
@@ -95,9 +95,9 @@ app.get('/twitter/callback', function (req, res) {
 					console.log("=======================================================")
 					console.log(results);
 					console.log("=======================================================")
-					res.send(results.screen_name + "<br/>worked. nice one.");
-
+					//res.send(results.screen_name + "<br/>worked. nice one.");
 					//res.sendfile(__dirname + '/index.html');
+					res.redirect('http://127.0.0.1:8888');
 				}
 			});
 		} else {
@@ -106,4 +106,21 @@ app.get('/twitter/callback', function (req, res) {
 	}
 });
 
+app.get('/get', function(req, res) {
+    var twit = new twitter({
+    	consumer_key: 'JGIhyIMHSCyr90oZjvxRvg',
+    	consumer_secret: 'ReDJ3Wn2xIBS6nvNIW1tzT5rc861jCWkjtsnWMsDCk',
+    	access_token_key: req.session.oauth.access_token,
+    	access_token_secret: req.session.oauth.access_token_secret
+    });
+    
+    twit.get('/statuses/home_timeline.json', {'count': 200, 'include_entities': true}, function(err, result) {
+    	console.log(result);
+        res.json(result);
+    });
+});
 
+app.get('/*', function (req, res) {
+	console.log(req.route.params[0]);
+	res.sendfile(__dirname + '/' + req.route.params[0]);
+});
